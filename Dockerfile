@@ -16,7 +16,7 @@ COPY backend/ ./
 # Copy built static frontend files into backend/dist for go:embed
 COPY --from=frontend-builder /app/frontend/dist ./dist
 
-RUN go mod tidy
+RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o docksight main.go
 
 # Stage 3: Minimal Final Runtime
