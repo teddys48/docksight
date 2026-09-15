@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  docksight:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docksight
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # Access Docker socket for container metrics & management
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Persistent SQLite metrics database
+      - monitoring_data:/data
+    environment:
+      - PORT=8080
+      - DB_PATH=/data/monitoring.db
+
+volumes:
+  monitoring_data:
+    driver: local
