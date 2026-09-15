@@ -1,55 +1,437 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border-color: #334155;
-  }
+/* ==========================================================================
+   SEMANTIC DESIGN TOKENS & COLOR SYSTEM
+   "Restrained, neutral, subtle contrast, muted accent, sophisticated SaaS"
+   ========================================================================== */
 
-  .light {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-  }
+:root {
+  /* Surface & Backgrounds */
+  --bg-app: #0b0f17;                /* Deep slate navy background */
+  --bg-surface: #111827;            /* Dark surface card background */
+  --bg-surface-elevated: #161e2e;   /* Elevated card / modal background */
+  --bg-subtle: #1f293d;             /* Subtle input / container background */
+  --bg-glass: rgba(17, 24, 39, 0.75);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: #1f2937;
+  --border-strong: #374151;
+
+  /* Typography */
+  --text-heading: #f9fafb;
+  --text-body: #e5e7eb;
+  --text-muted: #9ca3af;
+  --text-dim: #6b7280;
+
+  /* Primary Accent: Sophisticated Sky Blue */
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+  --color-primary-subtle: rgba(2, 132, 199, 0.15);
+  --color-primary-text: #38bdf8;
+
+  /* Semantic Tones: Restrained, non-harsh */
+  --color-success: #10b981;
+  --color-success-subtle: rgba(16, 185, 129, 0.12);
+  --color-success-border: rgba(16, 185, 129, 0.25);
+  --color-success-text: #34d399;
+
+  --color-warning: #f59e0b;
+  --color-warning-subtle: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.25);
+  --color-warning-text: #fbbf24;
+
+  --color-danger: #ef4444;
+  --color-danger-subtle: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.25);
+  --color-danger-text: #f87171;
+
+  --color-info: #6366f1;
+  --color-info-subtle: rgba(99, 102, 241, 0.12);
+  --color-info-border: rgba(99, 102, 241, 0.25);
+  --color-info-text: #818cf8;
+
+  /* Shadows & Focus */
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  --focus-ring: 0 0 0 2px rgba(56, 189, 248, 0.35);
+}
+
+.light {
+  color-scheme: light;
+
+  /* Surface & Backgrounds */
+  --bg-app: #f8fafc;                /* Crisp slate-50 background */
+  --bg-surface: #ffffff;            /* Pure white surface card */
+  --bg-surface-elevated: #ffffff;   /* Modal / Popover card */
+  --bg-subtle: #f1f5f9;             /* Input / Container background */
+  --bg-glass: rgba(255, 255, 255, 0.9);
+
+  /* Borders */
+  --border-subtle: #f1f5f9;
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  /* Typography */
+  --text-heading: #0f172a;          /* Deep slate-900 */
+  --text-body: #1e293b;             /* Slate-800 */
+  --text-muted: #475569;            /* Slate-600 */
+  --text-dim: #64748b;              /* Slate-500 */
+
+  /* Primary Accent: High-contrast Sky Blue */
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+  --color-primary-subtle: #e0f2fe;
+  --color-primary-text: #0284c7;
+
+  /* Semantic Tones: Eye-friendly, non-harsh */
+  --color-success: #059669;
+  --color-success-subtle: #d1fae5;
+  --color-success-border: #a7f3d0;
+  --color-success-text: #047857;
+
+  --color-warning: #d97706;
+  --color-warning-subtle: #fef3c7;
+  --color-warning-border: #fde68a;
+  --color-warning-text: #b45309;
+
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fee2e2;
+  --color-danger-border: #fecaca;
+  --color-danger-text: #b91c1c;
+
+  --color-info: #4f46e5;
+  --color-info-subtle: #e0e7ff;
+  --color-info-border: #c7d2fe;
+  --color-info-text: #4338ca;
+
+  /* Shadows & Focus */
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.02);
+  --focus-ring: 0 0 0 2px rgba(2, 132, 199, 0.3);
 }
 
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--bg-app);
+  color: var(--text-body);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
   min-height: 100vh;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(148, 163, 184, 0.4);
 }
 
+/* Base Glass Card */
 .glass-card {
-  background: rgba(30, 41, 59, 0.7);
+  background: var(--bg-glass);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-card);
+}
+
+/* Gradient Text Protection */
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Form Controls Consistency */
+input[type="text"],
+select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  box-shadow: var(--focus-ring) !important;
+}
+
+/* Interactive Button Smooth States */
+button {
+  transition: all 0.15s ease;
+}
+
+/* Focus States for Keyboard Ergonomics */
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ==========================================================================
+   SEMANTIC LIGHT MODE SYSTEM MAP
+   ========================================================================== */
+
+.light body {
+  background-color: var(--bg-app);
+  color: var(--text-body);
 }
 
 .light .glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-card);
+}
+
+/* Typography Hierarchy in Light Mode */
+.light .text-white,
+.light .text-slate-100,
+.light .text-slate-200 {
+  color: var(--text-heading);
+}
+
+.light .text-slate-300 {
+  color: var(--text-body);
+}
+
+.light .text-slate-400 {
+  color: var(--text-muted);
+}
+
+.light .text-slate-500 {
+  color: var(--text-dim);
+}
+
+/* Primary Accent Utilities */
+.light .text-sky-400 {
+  color: var(--color-primary-text) !important;
+}
+
+.light .bg-sky-500\/10,
+.light .bg-sky-500\/20 {
+  background-color: var(--color-primary-subtle) !important;
+}
+
+.light .border-sky-500\/20,
+.light .border-sky-500\/30 {
+  border-color: #bae6fd !important;
+}
+
+/* Success Tones */
+.light .text-emerald-400 {
+  color: var(--color-success-text) !important;
+}
+
+.light .bg-emerald-500\/10,
+.light .bg-emerald-500\/20 {
+  background-color: var(--color-success-subtle) !important;
+}
+
+.light .border-emerald-500\/20,
+.light .border-emerald-500\/30 {
+  border-color: var(--color-success-border) !important;
+}
+
+/* Danger / Error Tones */
+.light .text-rose-400 {
+  color: var(--color-danger-text) !important;
+}
+
+.light .bg-rose-500\/10,
+.light .bg-rose-500\/20 {
+  background-color: var(--color-danger-subtle) !important;
+}
+
+.light .border-rose-500\/20,
+.light .border-rose-500\/30 {
+  border-color: var(--color-danger-border) !important;
+}
+
+/* Warning Tones (Soft amber, non-harsh) */
+.light .text-amber-300,
+.light .text-amber-400,
+.light .text-amber-500 {
+  color: var(--color-warning-text) !important;
+}
+
+.light .bg-amber-500\/10,
+.light .bg-amber-500\/20 {
+  background-color: var(--color-warning-subtle) !important;
+}
+
+.light .border-amber-500\/20,
+.light .border-amber-500\/30,
+.light .border-amber-500\/40 {
+  border-color: var(--color-warning-border) !important;
+}
+
+.light .hover\:bg-amber-950\/40:hover {
+  background-color: var(--color-warning-subtle) !important;
+}
+
+.light .hover\:text-amber-400:hover {
+  color: var(--color-warning-text) !important;
+}
+
+/* Info / Indigo Tones */
+.light .text-indigo-400 {
+  color: var(--color-info-text) !important;
+}
+
+.light .bg-indigo-500\/10,
+.light .bg-indigo-500\/20 {
+  background-color: var(--color-info-subtle) !important;
+}
+
+.light .border-indigo-500\/20,
+.light .border-indigo-500\/30 {
+  border-color: var(--color-info-border) !important;
+}
+
+/* Purple Tones for Volume */
+.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+.light .bg-purple-500\/10 {
+  background-color: #f3e8ff !important;
+}
+
+.light .border-purple-500\/20 {
+  border-color: #ddd6fe !important;
+}
+
+/* Action Buttons & Badges with solid colored backgrounds keep white text */
+.light button.bg-sky-500,
+.light button.bg-emerald-500,
+.light button.bg-rose-500,
+.light button.bg-amber-500,
+.light button.bg-indigo-500,
+.light .bg-sky-500.text-white,
+.light .bg-emerald-500.text-white,
+.light .bg-rose-500.text-white {
+  color: #ffffff !important;
+}
+
+.light button.bg-sky-500 *,
+.light button.bg-emerald-500 *,
+.light button.bg-rose-500 *,
+.light button.bg-amber-500 *,
+.light button.bg-indigo-500 * {
+  color: #ffffff !important;
+}
+
+/* Background Utility Classes in Light Mode */
+.light .bg-slate-900,
+.light .bg-slate-900\/90,
+.light .bg-slate-900\/80,
+.light .bg-slate-900\/60,
+.light .bg-slate-900\/40,
+.light .bg-slate-950,
+.light .bg-slate-950\/90 {
+  background-color: var(--bg-subtle);
+}
+
+.light .bg-slate-950\/80 {
+  background-color: rgba(15, 23, 42, 0.4);
+}
+
+.light .bg-slate-800,
+.light .bg-slate-800\/80,
+.light .bg-slate-800\/50,
+.light .bg-slate-800\/40,
+.light .bg-slate-800\/30 {
+  background-color: #e2e8f0;
+}
+
+/* Hover States in Light Mode */
+.light .hover\:bg-slate-800\/30:hover,
+.light .hover\:bg-slate-800\/50:hover,
+.light .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0;
+}
+
+.light .hover\:bg-slate-700:hover {
+  background-color: #cbd5e1;
+}
+
+.light .hover\:text-white:hover {
+  color: var(--text-heading);
+}
+
+/* Borders in Light Mode */
+.light .border-slate-800,
+.light .border-slate-800\/80,
+.light .border-slate-800\/60,
+.light .border-slate-800\/50,
+.light .border-slate-700,
+.light .border-slate-700\/60,
+.light .border-slate-700\/50 {
+  border-color: var(--border-default);
+}
+
+/* Form Controls in Light Mode */
+.light input[type="text"],
+.light select {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-strong) !important;
+  color: var(--text-heading) !important;
+}
+
+.light input[type="text"]::placeholder {
+  color: var(--text-dim) !important;
+}
+
+/* Table Headers & Rows in Light Mode */
+.light th {
+  color: var(--text-muted);
+  background-color: var(--bg-subtle);
+}
+
+.light tr {
+  border-color: var(--border-subtle);
+}
+
+.light tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Modal Content Card in Light Mode */
+.light .glass-card.max-w-5xl {
+  background: var(--bg-surface);
+  border-color: var(--border-strong);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+}
+
+/* Terminal & Log Viewer in Light Mode */
+.light .h-\[520px\].bg-slate-950 {
+  background-color: #0b0f17; /* High contrast dark terminal for code/log readability */
+}
+
+.light .h-\[520px\] .text-slate-100,
+.light .h-\[520px\] .text-slate-200,
+.light .h-\[520px\] .text-slate-300 {
+  color: #f1f5f9;
+}
+
+.light .h-\[520px\] .text-slate-400,
+.light .h-\[520px\] .text-slate-500 {
+  color: #9ca3af;
+}
+
+.light .h-\[520px\] .bg-slate-900,
+.light .h-\[520px\] .bg-slate-950 {
+  background-color: #111827;
+}
+
+.light .h-\[520px\] input[type="text"],
+.light .h-\[520px\] select {
+  background-color: #0b0f17 !important;
+  border-color: #1f2937 !important;
+  color: #f8fafc !important;
 }

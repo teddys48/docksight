@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { theme } from '../stores.js';
   import {
     Chart,
     LineController,
@@ -33,10 +34,28 @@
 
   let canvasEl;
   let chartInstance;
+  let unsubscribeTheme;
 
   $: if (chartInstance && data) {
     chartInstance.data.labels = labels;
     chartInstance.data.datasets[0].data = data;
+    chartInstance.update('none');
+  }
+
+  function applyTheme(isLight) {
+    if (!chartInstance) return;
+    const gridColor = isLight ? 'rgba(203, 213, 225, 0.6)' : 'rgba(51, 65, 85, 0.3)';
+    const tickColor = isLight ? '#475569' : '#64748b';
+
+    chartInstance.options.scales.y.grid.color = gridColor;
+    chartInstance.options.scales.x.ticks.color = tickColor;
+    chartInstance.options.scales.y.ticks.color = tickColor;
+
+    chartInstance.options.plugins.tooltip.backgroundColor = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.9)';
+    chartInstance.options.plugins.tooltip.titleColor = isLight ? '#475569' : '#94a3b8';
+    chartInstance.options.plugins.tooltip.bodyColor = isLight ? '#0f172a' : '#f8fafc';
+    chartInstance.options.plugins.tooltip.borderColor = isLight ? '#cbd5e1' : '#334155';
+
     chartInstance.update('none');
   }
 
@@ -47,6 +66,8 @@
     const gradient = ctx.createLinearGradient(0, 0, 0, 200);
     gradient.addColorStop(0, color + '55'); // Semi transparent
     gradient.addColorStop(1, color + '00'); // Transparent
+
+    const isLight = $theme === 'light';
 
     chartInstance = new Chart(ctx, {
       type: 'line',
@@ -76,10 +97,10 @@
           tooltip: {
             mode: 'index',
             intersect: false,
-            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-            titleColor: '#94a3b8',
-            bodyColor: '#f8fafc',
-            borderColor: '#334155',
+            backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.9)',
+            titleColor: isLight ? '#475569' : '#94a3b8',
+            bodyColor: isLight ? '#0f172a' : '#f8fafc',
+            borderColor: isLight ? '#cbd5e1' : '#334155',
             borderWidth: 1,
             padding: 10,
             displayColors: false,
@@ -92,15 +113,15 @@
           x: {
             grid: { display: false },
             ticks: {
-              color: '#64748b',
+              color: isLight ? '#475569' : '#64748b',
               maxTicksLimit: 6,
               font: { size: 10 },
             },
           },
           y: {
-            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+            grid: { color: isLight ? 'rgba(203, 213, 225, 0.6)' : 'rgba(51, 65, 85, 0.3)' },
             ticks: {
-              color: '#64748b',
+              color: isLight ? '#475569' : '#64748b',
               font: { size: 10 },
               callback: (val) => `${val}${unit}`,
             },
@@ -109,9 +130,14 @@
         },
       },
     });
+
+    unsubscribeTheme = theme.subscribe(val => {
+      applyTheme(val === 'light');
+    });
   });
 
   onDestroy(() => {
+    if (unsubscribeTheme) unsubscribeTheme();
     if (chartInstance) {
       chartInstance.destroy();
     }

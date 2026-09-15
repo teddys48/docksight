@@ -15,7 +15,7 @@
         <Container class="w-6 h-6" />
       </div>
       <div>
-        <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent">
+        <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-500 bg-clip-text text-transparent">
           docksight
         </h1>
         <div class="flex items-center gap-1.5 text-xs text-slate-400">
