@@ -24,20 +24,20 @@
 
 <div class="space-y-8">
   <!-- Top Stat Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
     <!-- Host CPU Card -->
-    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg space-y-4 hover:border-sky-500/40 transition-all">
+    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-sky-500/40 transition-all">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Host CPU</span>
         <div class="p-2.5 rounded-2xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
           <Cpu class="w-5 h-5" />
         </div>
       </div>
-      <div>
+      <div class="mt-4 space-y-3">
         <div class="text-3xl font-extrabold tracking-tight text-white font-mono">
           {systemStats?.host_cpu?.toFixed(1) || 0}%
         </div>
-        <div class="w-full h-2 bg-slate-800 rounded-full mt-3 overflow-hidden">
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
           <div
             class="h-full bg-gradient-to-r from-sky-500 to-blue-600 transition-all duration-500"
             style="width: {Math.min(systemStats?.host_cpu || 0, 100)}%;"
@@ -47,23 +47,23 @@
     </div>
 
     <!-- Host RAM Card -->
-    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg space-y-4 hover:border-emerald-500/40 transition-all">
+    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-emerald-500/40 transition-all">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Host RAM</span>
         <div class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <HardDrive class="w-5 h-5" />
         </div>
       </div>
-      <div>
-        <div class="flex items-baseline gap-2">
-          <div class="text-3xl font-extrabold tracking-tight text-white font-mono">
+      <div class="mt-4 space-y-3">
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-3xl font-extrabold tracking-tight text-white font-mono shrink-0">
             {systemStats?.host_ram?.used_percent?.toFixed(1) || 0}%
-          </div>
-          <span class="text-xs text-slate-400 font-mono">
+          </span>
+          <span class="text-[11px] text-slate-400 font-mono text-right truncate">
             {formatBytes(systemStats?.host_ram?.used)} / {formatBytes(systemStats?.host_ram?.total)}
           </span>
         </div>
-        <div class="w-full h-2 bg-slate-800 rounded-full mt-3 overflow-hidden">
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
           <div
             class="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
             style="width: {Math.min(systemStats?.host_ram?.used_percent || 0, 100)}%;"
@@ -73,23 +73,23 @@
     </div>
 
     <!-- Host Disk Card -->
-    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg space-y-4 hover:border-indigo-500/40 transition-all">
+    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-indigo-500/40 transition-all">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Host Disk</span>
         <div class="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
           <HardDrive class="w-5 h-5" />
         </div>
       </div>
-      <div>
-        <div class="flex items-baseline gap-2">
-          <div class="text-3xl font-extrabold tracking-tight text-white font-mono">
+      <div class="mt-4 space-y-3">
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-3xl font-extrabold tracking-tight text-white font-mono shrink-0">
             {systemStats?.host_disk?.used_percent?.toFixed(1) || 0}%
-          </div>
-          <span class="text-xs text-slate-400 font-mono">
+          </span>
+          <span class="text-[11px] text-slate-400 font-mono text-right truncate">
             {formatBytes(systemStats?.host_disk?.used)} / {formatBytes(systemStats?.host_disk?.total)}
           </span>
         </div>
-        <div class="w-full h-2 bg-slate-800 rounded-full mt-3 overflow-hidden">
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
           <div
             class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500"
             style="width: {Math.min(systemStats?.host_disk?.used_percent || 0, 100)}%;"
@@ -99,18 +99,18 @@
     </div>
 
     <!-- Container Summary Card -->
-    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg space-y-4 hover:border-amber-500/40 transition-all">
+    <div class="glass-card p-6 rounded-3xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-amber-500/40 transition-all">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Containers</span>
         <div class="p-2.5 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
           <Box class="w-5 h-5" />
         </div>
       </div>
-      <div>
+      <div class="mt-4 space-y-3">
         <div class="text-3xl font-extrabold tracking-tight text-white font-mono">
           {systemStats?.total_containers || 0}
         </div>
-        <div class="flex items-center gap-4 mt-3 text-xs font-semibold">
+        <div class="flex items-center gap-4 text-xs font-semibold">
           <span class="flex items-center gap-1 text-emerald-400">
             <Play class="w-3 h-3 fill-current" /> {systemStats?.running_containers || 0} Running
           </span>

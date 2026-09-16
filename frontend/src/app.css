@@ -408,30 +408,135 @@ a:focus-visible {
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
 }
 
-/* Terminal & Log Viewer in Light Mode */
-.light .h-\[520px\].bg-slate-950 {
-  background-color: #0b0f17; /* High contrast dark terminal for code/log readability */
-}
+/* ==========================================================================
+   TERMINAL & INSPECT COMPONENTS (Consistently sharp & readable in all themes)
+   ========================================================================== */
 
-.light .h-\[520px\] .text-slate-100,
-.light .h-\[520px\] .text-slate-200,
-.light .h-\[520px\] .text-slate-300 {
-  color: #f1f5f9;
-}
-
-.light .h-\[520px\] .text-slate-400,
-.light .h-\[520px\] .text-slate-500 {
-  color: #9ca3af;
-}
-
-.light .h-\[520px\] .bg-slate-900,
-.light .h-\[520px\] .bg-slate-950 {
-  background-color: #111827;
-}
-
-.light .h-\[520px\] input[type="text"],
-.light .h-\[520px\] select {
+/* Main Terminal Container */
+.terminal-container,
+.light .terminal-container {
   background-color: #0b0f17 !important;
   border-color: #1f2937 !important;
-  color: #f8fafc !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Toolbar Bar */
+.terminal-toolbar,
+.light .terminal-toolbar {
+  background-color: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+/* Title Badge */
+.terminal-badge,
+.light .terminal-badge {
+  background-color: #0b0f17 !important;
+  border-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+/* Buttons in Terminal Toolbar */
+.terminal-btn-inactive,
+.light .terminal-btn-inactive {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #9ca3af !important;
+}
+
+.terminal-btn-inactive:hover,
+.light .terminal-btn-inactive:hover {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.terminal-btn-sky,
+.light .terminal-btn-sky {
+  background-color: rgba(56, 189, 248, 0.18) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
+}
+
+.terminal-btn-amber,
+.light .terminal-btn-amber {
+  background-color: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  color: #fbbf24 !important;
+}
+
+.terminal-btn-indigo,
+.light .terminal-btn-indigo {
+  background-color: rgba(129, 140, 248, 0.18) !important;
+  border-color: rgba(129, 140, 248, 0.4) !important;
+  color: #818cf8 !important;
+}
+
+.terminal-btn-emerald,
+.light .terminal-btn-emerald {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #34d399 !important;
+}
+
+.terminal-btn-rose,
+.light .terminal-btn-rose {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+}
+
+/* Terminal Inputs & Selects */
+.terminal-input,
+.light .terminal-input {
+  background-color: #0b0f17 !important;
+  border-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+}
+
+.terminal-input::placeholder,
+.light .terminal-input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Terminal Log Output Area */
+.terminal-body,
+.light .terminal-body {
+  background-color: #050811 !important;
+  color: #e5e7eb !important;
+}
+
+.terminal-line-num,
+.light .terminal-line-num {
+  color: #4b5563 !important;
+}
+
+.terminal-line-stdout,
+.light .terminal-line-stdout {
+  color: #e5e7eb !important;
+}
+
+.terminal-line-stderr,
+.light .terminal-line-stderr {
+  color: #f87171 !important;
+  font-weight: 600 !important;
+}
+
+.terminal-line-hover:hover,
+.light .terminal-line-hover:hover {
+  background-color: rgba(31, 41, 55, 0.6) !important;
+}
+
+/* ==========================================================================
+   INSPECT JSON CONTAINER STYLING
+   ========================================================================== */
+
+.inspect-container,
+.light .inspect-container {
+  background-color: #050811 !important;
+  border-color: #1f2937 !important;
+}
+
+.inspect-json-text,
+.light .inspect-json-text {
+  color: #38bdf8 !important; /* High contrast sky blue text */
 }

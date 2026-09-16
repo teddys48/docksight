@@ -218,11 +218,11 @@
         {:else if activeModalTab === 'logs'}
           <LogViewer containerId={container.id} />
         {:else if activeModalTab === 'inspect'}
-          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs overflow-x-auto max-h-[500px]">
+          <div class="inspect-container p-4 rounded-2xl border font-mono text-xs overflow-x-auto max-h-[500px]">
             {#if loadingInspect}
               <div class="p-8 text-center text-slate-500 italic">Loading inspect metadata...</div>
             {:else if inspectData}
-              <pre class="text-sky-300 leading-relaxed">{JSON.stringify(inspectData, null, 2)}</pre>
+              <pre class="inspect-json-text leading-relaxed">{JSON.stringify(inspectData, null, 2)}</pre>
             {:else}
               <div class="p-8 text-center text-rose-400">Failed to load container inspection.</div>
             {/if}

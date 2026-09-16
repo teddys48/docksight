@@ -87,20 +87,20 @@
   });
 </script>
 
-<div class="flex flex-col h-[520px] rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl">
+<div class="terminal-container flex flex-col h-[520px] rounded-2xl border overflow-hidden shadow-2xl">
   <!-- Log Toolbar -->
-  <div class="flex flex-wrap items-center justify-between p-3 bg-slate-900 border-b border-slate-800 gap-3 text-xs">
+  <div class="terminal-toolbar flex flex-wrap items-center justify-between p-3 border-b gap-3 text-xs">
     <!-- Left Controls -->
     <div class="flex items-center gap-2">
-      <div class="flex items-center gap-1 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 text-slate-300">
+      <div class="terminal-badge flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-xs">
         <Terminal class="w-3.5 h-3.5 text-sky-400" />
-        <span class="font-mono font-bold text-slate-200">Logs</span>
+        <span class="font-mono font-bold">Logs</span>
       </div>
 
       <button
         onclick={togglePause}
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium
-          {isPaused ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30' : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'}"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium text-xs
+          {isPaused ? 'terminal-btn-amber' : 'terminal-btn-inactive'}"
       >
         {#if isPaused}
           <Play class="w-3.5 h-3.5 fill-current" />
@@ -113,7 +113,7 @@
 
       <button
         onclick={clearLogs}
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/40 hover:text-rose-300 border border-slate-700 text-slate-300 transition-all font-medium"
+        class="terminal-btn-inactive hover:terminal-btn-rose flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium text-xs"
       >
         <Trash2 class="w-3.5 h-3.5" />
         <span>Clear</span>
@@ -121,8 +121,8 @@
 
       <button
         onclick={() => { autoScroll = !autoScroll; if (autoScroll) scrollToBottom(); }}
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium
-          {autoScroll ? 'bg-sky-500/20 border-sky-500/40 text-sky-300' : 'bg-slate-800 border-slate-700 text-slate-400'}"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium text-xs
+          {autoScroll ? 'terminal-btn-sky' : 'terminal-btn-inactive'}"
       >
         <ArrowDown class="w-3.5 h-3.5" />
         <span>Auto-scroll</span>
@@ -130,8 +130,8 @@
 
       <button
         onclick={() => { showTimestamps = !showTimestamps; applyFilterChange(); }}
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium
-          {showTimestamps ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300' : 'bg-slate-800 border-slate-700 text-slate-400'}"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-medium text-xs
+          {showTimestamps ? 'terminal-btn-indigo' : 'terminal-btn-inactive'}"
       >
         <Clock class="w-3.5 h-3.5" />
         <span>Timestamps</span>
@@ -141,16 +141,16 @@
     <!-- Right Controls: Filter & Search -->
     <div class="flex items-center gap-2">
       <!-- stdout / stderr toggle -->
-      <div class="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 font-mono">
+      <div class="terminal-badge flex items-center p-0.5 rounded-lg border font-mono">
         <button
           onclick={() => { showStdout = !showStdout; applyFilterChange(); }}
-          class="px-2 py-1 rounded-md text-[11px] font-semibold transition-all {showStdout ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-500'}"
+          class="px-2 py-1 rounded-md text-[11px] font-semibold transition-all {showStdout ? 'terminal-btn-emerald' : 'text-slate-500'}"
         >
           STDOUT
         </button>
         <button
           onclick={() => { showStderr = !showStderr; applyFilterChange(); }}
-          class="px-2 py-1 rounded-md text-[11px] font-semibold transition-all {showStderr ? 'bg-rose-500/20 text-rose-400' : 'text-slate-500'}"
+          class="px-2 py-1 rounded-md text-[11px] font-semibold transition-all {showStderr ? 'terminal-btn-rose' : 'text-slate-500'}"
         >
           STDERR
         </button>
@@ -160,7 +160,7 @@
       <select
         bind:value={tailLines}
         onchange={applyFilterChange}
-        class="bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2 py-1.5 font-mono text-xs focus:outline-none"
+        class="terminal-input border rounded-lg px-2 py-1.5 font-mono text-xs focus:outline-none"
       >
         <option value="50">50 lines</option>
         <option value="100">100 lines</option>
@@ -175,7 +175,7 @@
           type="text"
           bind:value={searchQuery}
           placeholder="Filter log output..."
-          class="bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1 text-slate-200 placeholder-slate-500 text-xs focus:outline-none focus:border-sky-500 w-44"
+          class="terminal-input border rounded-lg pl-8 pr-3 py-1 text-xs focus:outline-none w-44"
         />
       </div>
     </div>
@@ -184,18 +184,17 @@
   <!-- Log View Container -->
   <div
     bind:this={logContainerEl}
-    class="flex-1 p-4 font-mono text-xs overflow-y-auto space-y-1 select-text bg-slate-950/90 leading-relaxed"
+    class="terminal-body flex-1 p-4 font-mono text-xs overflow-y-auto space-y-1 select-text leading-relaxed"
   >
     {#if filteredLogs.length === 0}
-      <div class="h-full flex items-center justify-center text-slate-600 italic">
+      <div class="h-full flex items-center justify-center text-slate-500 italic">
         {searchQuery ? 'No log lines matching search query' : 'Waiting for logs...'}
       </div>
     {:else}
       {#each filteredLogs as line, i}
-        <div class="flex items-start hover:bg-slate-900/60 rounded px-1 group">
-          <span class="text-slate-600 select-none w-10 text-right pr-3 shrink-0 font-light">{i + 1}</span>
-          <span class="break-all
-            {line.includes('[STDERR]') ? 'text-rose-400 font-semibold' : 'text-slate-300'}">
+        <div class="terminal-line-hover flex items-start rounded px-1 group">
+          <span class="terminal-line-num select-none w-10 text-right pr-3 shrink-0 font-light">{i + 1}</span>
+          <span class="break-all {line.includes('[STDERR]') ? 'terminal-line-stderr' : 'terminal-line-stdout'}">
             {line}
           </span>
         </div>
