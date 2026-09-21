@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -81,20 +82,77 @@ type DockerClient struct {
 var Instance *DockerClient
 
 func InitDockerClient() (*DockerClient, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return nil, fmt.Errorf("failed to create docker client: %w", err)
+	var cli *client.Client
+	var connectedHost string
+
+	// List candidate socket endpoints to probe if DOCKER_HOST is not explicitly set
+	var hostsToTry []string
+
+	if envHost := os.Getenv("DOCKER_HOST"); envHost != "" {
+		hostsToTry = []string{envHost}
+	} else {
+		// 1. Standard Docker Socket
+		hostsToTry = append(hostsToTry, "unix:///var/run/docker.sock")
+
+		// 2. Podman Rootless Socket (XDG_RUNTIME_DIR)
+		if xdgRuntime := os.Getenv("XDG_RUNTIME_DIR"); xdgRuntime != "" {
+			hostsToTry = append(hostsToTry, fmt.Sprintf("unix://%s/podman/podman.sock", xdgRuntime))
+		}
+
+		// 3. Common Rootless Podman Socket for current user UID
+		hostsToTry = append(hostsToTry, fmt.Sprintf("unix:///run/user/%d/podman/podman.sock", os.Getuid()))
+
+		// 4. Common Rootful Podman Sockets
+		hostsToTry = append(hostsToTry, "unix:///run/podman/podman.sock")
+		hostsToTry = append(hostsToTry, "unix:///var/run/podman/podman.sock")
 	}
 
-	// Ping docker daemon
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
+	for _, host := range hostsToTry {
+		var opts []client.Opt
+		opts = append(opts, client.WithAPIVersionNegotiation())
 
-	_, err = cli.Ping(ctx)
-	if err != nil {
-		log.Printf("Warning: Unable to ping docker daemon: %v", err)
-	} else {
-		log.Println("Successfully connected to Docker Daemon")
+		if os.Getenv("DOCKER_HOST") != "" {
+			opts = append(opts, client.FromEnv)
+		} else {
+			opts = append(opts, client.WithHost(host))
+		}
+
+		testCli, testErr := client.NewClientWithOpts(opts...)
+		if testErr != nil {
+			continue
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		pingResp, pingErr := testCli.Ping(ctx)
+		cancel()
+
+		if pingErr == nil {
+			cli = testCli
+			connectedHost = host
+			engineType := "Container Engine"
+			if strings.Contains(host, "podman") {
+				engineType = "Podman Engine"
+			} else if strings.Contains(host, "docker") {
+				engineType = "Docker Daemon"
+			}
+			if pingResp.APIVersion != "" {
+				log.Printf("Successfully connected to %s at %s (API Version: %s)", engineType, connectedHost, pingResp.APIVersion)
+			} else {
+				log.Printf("Successfully connected to %s at %s", engineType, connectedHost)
+			}
+			break
+		}
+		testCli.Close()
+	}
+
+	// Fallback if pinging candidate sockets was unsuccessful
+	if cli == nil {
+		var err error
+		cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err != nil {
+			return nil, fmt.Errorf("failed to create container engine client: %w", err)
+		}
+		log.Println("Warning: Unable to ping Container Engine daemon (Docker/Podman). Will attempt connection on API calls.")
 	}
 
 	Instance = &DockerClient{cli: cli}
