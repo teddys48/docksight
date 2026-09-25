@@ -13,6 +13,7 @@
   let tailLines = '100';
   let searchQuery = '';
 
+  let connectionStatus = 'connecting'; // 'connecting' | 'connected' | 'ended' | 'error'
   let eventSource = null;
   let logContainerEl;
 
@@ -25,15 +26,21 @@
       eventSource.close();
     }
     logs = [];
+    connectionStatus = 'connecting';
 
     const url = `/api/sse/logs?id=${containerId}&tail=${tailLines}&stdout=${showStdout}&stderr=${showStderr}&timestamps=${showTimestamps}`;
     eventSource = new EventSource(url);
+
+    eventSource.onopen = () => {
+      connectionStatus = 'connected';
+    };
 
     eventSource.onmessage = async (e) => {
       if (isPaused) return;
       try {
         const payload = JSON.parse(e.data);
         if (payload.log) {
+          connectionStatus = 'connected';
           logs = [...logs, payload.log];
           if (logs.length > 2000) {
             logs = logs.slice(-1500); // Prevent memory bloat
@@ -48,7 +55,15 @@
       }
     };
 
+    eventSource.addEventListener('end', () => {
+      connectionStatus = 'ended';
+      if (eventSource) eventSource.close();
+    });
+
     eventSource.onerror = (err) => {
+      if (logs.length === 0) {
+        connectionStatus = 'error';
+      }
       console.warn('SSE log connection error:', err);
     };
   }
@@ -187,8 +202,24 @@
     class="terminal-body flex-1 p-4 font-mono text-xs overflow-y-auto space-y-1 select-text leading-relaxed"
   >
     {#if filteredLogs.length === 0}
-      <div class="h-full flex items-center justify-center text-slate-500 italic">
-        {searchQuery ? 'No log lines matching search query' : 'Waiting for logs...'}
+      <div class="h-full flex flex-col items-center justify-center text-slate-500 italic font-mono text-xs p-6 text-center space-y-2">
+        {#if searchQuery}
+          <span>No log lines matching "{searchQuery}"</span>
+        {:else if connectionStatus === 'connecting'}
+          <div class="flex items-center gap-2 text-sky-400 font-semibold not-italic">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+            </span>
+            <span>Connecting to container log stream...</span>
+          </div>
+        {:else if connectionStatus === 'ended'}
+          <span class="text-slate-400">Container log stream completed / reached end of output</span>
+        {:else if connectionStatus === 'error'}
+          <span class="text-rose-400">Unable to stream logs (Connection error or container stopped)</span>
+        {:else}
+          <span>No log output recorded for this container</span>
+        {/if}
       </div>
     {:else}
       {#each filteredLogs as line, i}

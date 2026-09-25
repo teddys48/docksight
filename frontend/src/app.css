@@ -387,10 +387,25 @@ a:focus-visible {
   color: var(--text-dim) !important;
 }
 
-/* Table Headers & Rows in Light Mode */
-.light th {
+/* Table Headers & Rows */
+th {
   color: var(--text-muted);
-  background-color: var(--bg-subtle);
+  background-color: transparent !important;
+}
+
+.dark th {
+  color: #9ca3af !important;
+  background-color: transparent !important;
+}
+
+.light th {
+  color: #475569 !important;
+  background-color: transparent !important;
+}
+
+tr {
+  border-color: var(--border-subtle);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .light tr {
@@ -539,4 +554,82 @@ a:focus-visible {
 .inspect-json-text,
 .light .inspect-json-text {
   color: #38bdf8 !important; /* High contrast sky blue text */
+}
+
+/* ==========================================================================
+   LOGS EXPLORER SIDEBAR NAVIGATION BUTTON STYLING (High-Contrast Theme Map)
+   ========================================================================== */
+
+/* Active State (Dark Mode) */
+.sidebar-btn-active {
+  background-color: rgba(2, 132, 199, 0.15) !important;
+  border-color: rgba(2, 132, 199, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15) !important;
+}
+
+.sidebar-btn-active .sidebar-btn-title {
+  color: #38bdf8 !important; /* Vibrant sky-300 */
+}
+
+.sidebar-btn-active .sidebar-btn-subtitle {
+  color: #7dd3fc !important;
+}
+
+/* Active State (Light Mode) */
+.light .sidebar-btn-active {
+  background-color: #e0f2fe !important; /* Soft sky blue */
+  border-color: #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15) !important;
+}
+
+.light .sidebar-btn-active .sidebar-btn-title {
+  color: #0369a1 !important; /* Deep rich sky blue - 100% readable */
+  font-weight: 700 !important;
+}
+
+.light .sidebar-btn-active .sidebar-btn-subtitle {
+  color: #075985 !important; /* Crisp slate blue */
+}
+
+/* Inactive State (Dark Mode) */
+.sidebar-btn-inactive {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar-btn-inactive .sidebar-btn-title {
+  color: #f3f4f6 !important;
+}
+
+.sidebar-btn-inactive .sidebar-btn-subtitle {
+  color: #9ca3af !important;
+}
+
+.sidebar-btn-inactive:hover {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.sidebar-btn-inactive:hover .sidebar-btn-title {
+  color: #ffffff !important;
+}
+
+/* Inactive State (Light Mode) */
+.light .sidebar-btn-inactive {
+  background-color: #ffffff !important; /* Crisp white card */
+  border-color: #e2e8f0 !important;
+}
+
+.light .sidebar-btn-inactive .sidebar-btn-title {
+  color: #0f172a !important; /* Slate-900 bold text - crystal clear contrast */
+  font-weight: 700 !important;
+}
+
+.light .sidebar-btn-inactive .sidebar-btn-subtitle {
+  color: #475569 !important; /* Slate-600 */
+}
+
+.light .sidebar-btn-inactive:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
 }

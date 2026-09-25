@@ -17,9 +17,10 @@
 - **Real-time Metrics Charts**: Interactive timeline line charts for Host CPU and RAM usage powered by Chart.js.
 - **Container I/O Summary**: Live Network I/O (RX/TX bytes) and Block I/O (Disk Read/Write) metrics.
 
-### 🐳 2. Container Management & Pagination (Docker & Podman)
+### 🐳 2. Container Management, Sorting & Pagination (Docker & Podman)
 
 - **Container Directory**: Detailed list showing container name, status badges, CPU %, RAM usage, Network I/O, and Uptime with **Pagination controls** (5, 10, 20, 50 rows per page).
+- **Multi-Column Sorting**: Interactive sorting by **Name**, **Status**, **CPU %**, **RAM Usage**, **Network I/O**, and **Uptime** (Ascending & Descending toggles).
 - **Search & Filters**: Instant live text search (by container name, ID, or image name) and tabbed status filters (All, Running, Stopped).
 - **Lifecycle Control Operations**:
   - ▶️ **Start** container
@@ -28,34 +29,37 @@
   - 🗑️ **Remove** container (with optional Force flag)
   - 🔍 **Inspect JSON View**
 
-### 💾 3. Volume Management & Pagination
+### 📜 3. Grafana-Style Logs Explorer Tab
+
+- **Grouped Drill-Down Logs**: View all container logs grouped by container in an accordion layout or select a single container for focused drill-down stream.
+- **Container Group Selector**: Quick left-sidebar list of containers with live state indicators (Running/Stopped) and instant container filter.
+- **Real-time SSE Tailing**: Live streaming stdout and stderr log outputs with auto-reconnect.
+- **Interactive Terminal Controls**:
+  - ⏸️ **Pause / Resume** live log stream
+  - 🧹 **Clear** log output
+  - ⬇️ **Auto-scroll** toggle
+  - 🕒 **Timestamps** display toggle
+  - ⚙️ **STDOUT / STDERR** channel filters
+  - 🔍 **Live Log Search**: Substring filter across log outputs
+  - 🔢 **Configurable Tail Lines**: 50, 100, 200, 500, or 1000 lines
+
+### 🖼️ 4. Container Images Explorer & Column Sorting
+
+- View all local Docker/Podman images with Repository Tags, Image ID, File Size (MB/GB), and Created Date.
+- **Multi-Column Sorting**: Interactive column sorting by **Repository & Tag**, **Image ID**, **Size**, **Created Date**, and **Dangling Status**.
+- **Paginated Image Directory**: Full pagination support (5, 10, 20, 50 rows per page) and instant search filtering.
+- Automatic detection and filtering of **Dangling Images** (`<none>:<none>`).
+
+### 💾 5. Volume Management & Pagination
 
 - **Volume Directory**: View host volumes, driver, mount points, scope, and creation dates.
 - **Paginated Volume Table**: Full pagination support (5, 10, 20, 50 rows per page) and instant search filtering.
-
-### 📜 4. Real-time Container Log Viewer (SSE Event Stream)
-
-- **Server-Sent Events Tailing**: Live streaming stdout and stderr log outputs without refreshing the page.
-- **Interactive Log Controls**:
-  - ⏸️ **Pause / Resume** live log stream
-  - 🧹 **Clear** log view
-  - ⬇️ **Auto-scroll** toggle to keep focus on latest log output
-  - 🕒 **Timestamps** display toggle
-  - ⚙️ **STDOUT / STDERR** channel filters
-  - 🔍 **Live Log Search**: Filter log lines instantly with query matching
-  - 🔢 **Configurable Tail Lines**: Select 50, 100, 200, or 500 initial tail lines
-
-### 🖼️ 5. Container Images Explorer & Pagination
-
-- View all local Docker/Podman images with Repository Tags, Image ID, File Size (MB/GB), and Created Date.
-- **Paginated Image Directory**: Full pagination support (5, 10, 20, 50 rows per page) and instant search filtering.
-- Automatic detection and filtering of **Dangling Images** (`<none>:<none>`).
 
 ### 🎨 6. Modern UI & Ergonomics
 
 - **Dark & Light Mode Switcher**: Seamless theme toggle with persistent `localStorage` user preferences.
 - **Skeleton Loader UI**: Smooth placeholder loading states during data fetch.
-- **Toast Notifications**: Interactive alert toasts for container start, stop, restart, and deletion operations.
+- **Toast Notifications**: Interactive alert toasts for container operations.
 - **Fully Responsive**: Optimized for desktop, tablet, and mobile displays.
 
 ---

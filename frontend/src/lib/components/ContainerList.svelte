@@ -1,9 +1,9 @@
 <script>
   import { performContainerAction, formatBytes, formatUptime } from '../api.js';
-  import { addToast } from '../stores.js';
+  import { addToast, selectedLogContainerId, activeTab } from '../stores.js';
   import SkeletonLoader from './SkeletonLoader.svelte';
   import ContainerDetailModal from './ContainerDetailModal.svelte';
-  import { Search, Play, Square, RotateCw, Trash2, Terminal, Box, ChevronLeft, ChevronRight } from 'lucide-svelte';
+  import { Search, Play, Square, RotateCw, Trash2, Terminal, Box, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-svelte';
 
   export let containers = [];
   export let loading = false;
@@ -13,9 +13,23 @@
   let selectedContainer = null;
   let actionLoading = {};
 
+  // Sorting state
+  let sortField = 'name'; // 'name' | 'status' | 'cpu' | 'ram' | 'network' | 'uptime'
+  let sortDirection = 'asc'; // 'asc' | 'desc'
+
   // Pagination state
   let currentPage = 1;
   let pageSize = 10;
+
+  function toggleSort(field) {
+    if (sortField === field) {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortField = field;
+      sortDirection = (field === 'name' || field === 'status') ? 'asc' : 'desc';
+    }
+    currentPage = 1;
+  }
 
   $: filteredContainers = containers.filter(c => {
     // Filter status
@@ -32,10 +46,37 @@
     return name.includes(q) || id.includes(q) || img.includes(q);
   });
 
-  $: totalPages = Math.ceil(filteredContainers.length / pageSize) || 1;
+  $: sortedContainers = [...filteredContainers].sort((a, b) => {
+    let valA, valB;
+    if (sortField === 'name') {
+      valA = (a.names?.[0] || a.id).toLowerCase();
+      valB = (b.names?.[0] || b.id).toLowerCase();
+    } else if (sortField === 'status') {
+      valA = (a.state || '').toLowerCase();
+      valB = (b.state || '').toLowerCase();
+    } else if (sortField === 'cpu') {
+      valA = a.cpu_usage || 0;
+      valB = b.cpu_usage || 0;
+    } else if (sortField === 'ram') {
+      valA = a.ram_usage || 0;
+      valB = b.ram_usage || 0;
+    } else if (sortField === 'network') {
+      valA = (a.net_input || 0) + (a.net_output || 0);
+      valB = (b.net_input || 0) + (b.net_output || 0);
+    } else if (sortField === 'uptime') {
+      valA = a.created || 0;
+      valB = b.created || 0;
+    }
+
+    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  $: totalPages = Math.ceil(sortedContainers.length / pageSize) || 1;
   $: if (currentPage > totalPages) currentPage = totalPages;
 
-  $: paginatedContainers = filteredContainers.slice(
+  $: paginatedContainers = sortedContainers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
@@ -56,6 +97,11 @@
   function openDetail(container) {
     selectedContainer = container;
   }
+
+  function navigateToLogs(containerId) {
+    selectedLogContainerId.set(containerId);
+    activeTab.set('logs');
+  }
 </script>
 
 <div class="space-y-6">
@@ -65,10 +111,10 @@
       <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
         <Box class="w-7 h-7 text-sky-400" /> Containers
       </h2>
-      <p class="text-sm text-slate-400 mt-1">Manage and inspect Docker containers in real-time</p>
+      <p class="text-sm text-slate-400 mt-1">Manage, sort, and inspect Docker containers in real-time</p>
     </div>
 
-    <!-- Filters & Search -->
+    <!-- Filters & Search & Sort -->
     <div class="flex flex-wrap items-center gap-3">
       <!-- Status Filter Tabs -->
       <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
@@ -91,6 +137,33 @@
           Stopped ({containers.filter(c => c.state !== 'running').length})
         </button>
       </div>
+
+      <!-- Quick Sort Selector -->
+      <select
+        bind:value={sortField}
+        onchange={() => { sortDirection = (sortField === 'name' || sortField === 'status') ? 'asc' : 'desc'; currentPage = 1; }}
+        class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-sky-500"
+      >
+        <option value="name">Sort: Name</option>
+        <option value="status">Sort: Status</option>
+        <option value="cpu">Sort: CPU %</option>
+        <option value="ram">Sort: RAM Usage</option>
+        <option value="network">Sort: Network I/O</option>
+        <option value="uptime">Sort: Uptime</option>
+      </select>
+
+      <!-- Direction Toggle -->
+      <button
+        onclick={() => sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'}
+        title="Toggle sort direction"
+        class="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white transition-colors"
+      >
+        {#if sortDirection === 'asc'}
+          <ArrowUp class="w-4 h-4 text-sky-400" />
+        {:else}
+          <ArrowDown class="w-4 h-4 text-sky-400" />
+        {/if}
+      </button>
 
       <!-- Search Input -->
       <div class="relative w-64">
@@ -120,13 +193,121 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs border-collapse">
           <thead>
-            <tr class="border-b border-slate-800/80 bg-slate-900/60 text-slate-400 uppercase tracking-wider font-semibold">
-              <th class="py-4 px-5">Name & Image</th>
-              <th class="py-4 px-4">Status</th>
-              <th class="py-4 px-4">CPU %</th>
-              <th class="py-4 px-4">RAM Usage</th>
-              <th class="py-4 px-4">Network I/O</th>
-              <th class="py-4 px-4">Uptime</th>
+            <tr class="border-b border-slate-800/80 bg-slate-900/60 text-slate-400 uppercase tracking-wider font-semibold select-none">
+              <!-- Name Header -->
+              <th
+                onclick={() => toggleSort('name')}
+                class="py-4 px-5 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Name & Image</span>
+                  {#if sortField === 'name'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- Status Header -->
+              <th
+                onclick={() => toggleSort('status')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Status</span>
+                  {#if sortField === 'status'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- CPU Header -->
+              <th
+                onclick={() => toggleSort('cpu')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>CPU %</span>
+                  {#if sortField === 'cpu'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- RAM Header -->
+              <th
+                onclick={() => toggleSort('ram')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>RAM Usage</span>
+                  {#if sortField === 'ram'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- Network Header -->
+              <th
+                onclick={() => toggleSort('network')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Network I/O</span>
+                  {#if sortField === 'network'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- Uptime Header -->
+              <th
+                onclick={() => toggleSort('uptime')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Uptime</span>
+                  {#if sortField === 'uptime'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
               <th class="py-4 px-5 text-right">Actions</th>
             </tr>
           </thead>
@@ -223,11 +404,20 @@
 
                     <button
                       disabled={actionLoading[c.id]}
+                      onclick={() => navigateToLogs(c.id)}
+                      title="Drill-down Logs"
+                      class="p-2 rounded-xl bg-slate-800 hover:bg-sky-950/40 text-slate-300 hover:text-sky-400 border border-slate-700/60 transition-all"
+                    >
+                      <Terminal class="w-3.5 h-3.5 text-sky-400" />
+                    </button>
+
+                    <button
+                      disabled={actionLoading[c.id]}
                       onclick={() => openDetail(c)}
-                      title="Container Details & Logs"
+                      title="Container Details & JSON"
                       class="p-2 rounded-xl bg-slate-800 hover:bg-indigo-950/40 text-slate-300 hover:text-indigo-400 border border-slate-700/60 transition-all"
                     >
-                      <Terminal class="w-3.5 h-3.5" />
+                      <Box class="w-3.5 h-3.5 text-indigo-400" />
                     </button>
 
                     <button
@@ -261,7 +451,7 @@
             <option value={50}>50</option>
           </select>
           <span class="text-slate-500 font-mono ml-2">
-            Showing {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredContainers.length)} of {filteredContainers.length}
+            Showing {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, sortedContainers.length)} of {sortedContainers.length}
           </span>
         </div>
 

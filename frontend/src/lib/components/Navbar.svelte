@@ -1,6 +1,6 @@
 <script>
   import { theme, activeTab, sseConnected } from '../stores.js';
-  import { LayoutDashboard, Box, HardDrive, Database, Sun, Moon, Container } from 'lucide-svelte';
+  import { LayoutDashboard, Box, HardDrive, Database, Sun, Moon, Container, Terminal } from 'lucide-svelte';
 
   function toggleTheme() {
     theme.update(t => (t === 'dark' ? 'light' : 'dark'));
@@ -53,6 +53,15 @@
       </button>
 
       <button
+        onclick={() => activeTab.set('logs')}
+        class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+          {$activeTab === 'logs' ? 'bg-sky-500 text-white shadow-md shadow-sky-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}"
+      >
+        <Terminal class="w-4 h-4" />
+        <span>Logs</span>
+      </button>
+
+      <button
         onclick={() => activeTab.set('images')}
         class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
           {$activeTab === 'images' ? 'bg-sky-500 text-white shadow-md shadow-sky-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}"
@@ -102,6 +111,13 @@
     >
       <Box class="w-5 h-5" />
       <span>Containers</span>
+    </button>
+    <button
+      onclick={() => activeTab.set('logs')}
+      class="flex flex-col items-center gap-1 p-2 rounded-lg text-xs font-medium {$activeTab === 'logs' ? 'text-sky-400' : 'text-slate-400'}"
+    >
+      <Terminal class="w-5 h-5" />
+      <span>Logs</span>
     </button>
     <button
       onclick={() => activeTab.set('images')}

@@ -2,12 +2,16 @@
   import { onMount } from 'svelte';
   import { fetchImages, formatBytes, formatDate } from '../api.js';
   import SkeletonLoader from './SkeletonLoader.svelte';
-  import { HardDrive, Search, Filter, AlertTriangle, Tag, Clock, ChevronLeft, ChevronRight } from 'lucide-svelte';
+  import { HardDrive, Search, Filter, AlertTriangle, Tag, Clock, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-svelte';
 
   let images = [];
   let loading = true;
   let searchQuery = '';
   let filterDangling = false;
+
+  // Sorting state
+  let sortField = 'tag'; // 'tag' | 'id' | 'size' | 'created' | 'status'
+  let sortDirection = 'asc'; // 'asc' | 'desc'
 
   // Pagination states
   let currentPage = 1;
@@ -28,6 +32,16 @@
     }
   }
 
+  function toggleSort(field) {
+    if (sortField === field) {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortField = field;
+      sortDirection = (field === 'tag' || field === 'id') ? 'asc' : 'desc';
+    }
+    currentPage = 1;
+  }
+
   $: filteredImages = images.filter(img => {
     if (filterDangling && !img.is_dangling) return false;
 
@@ -39,10 +53,34 @@
     return tags.includes(q) || id.includes(q);
   });
 
-  $: totalPages = Math.ceil(filteredImages.length / pageSize) || 1;
+  $: sortedImages = [...filteredImages].sort((a, b) => {
+    let valA, valB;
+    if (sortField === 'tag') {
+      valA = (a.repo_tags || []).join(' ').toLowerCase();
+      valB = (b.repo_tags || []).join(' ').toLowerCase();
+    } else if (sortField === 'id') {
+      valA = (a.id || '').toLowerCase();
+      valB = (b.id || '').toLowerCase();
+    } else if (sortField === 'size') {
+      valA = a.size || 0;
+      valB = b.size || 0;
+    } else if (sortField === 'created') {
+      valA = a.created || 0;
+      valB = b.created || 0;
+    } else if (sortField === 'status') {
+      valA = a.is_dangling ? 1 : 0;
+      valB = b.is_dangling ? 1 : 0;
+    }
+
+    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  $: totalPages = Math.ceil(sortedImages.length / pageSize) || 1;
   $: if (currentPage > totalPages) currentPage = totalPages;
 
-  $: paginatedImages = filteredImages.slice(
+  $: paginatedImages = sortedImages.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
@@ -67,6 +105,32 @@
       >
         <AlertTriangle class="w-4 h-4 text-amber-400" />
         <span>Dangling Only ({images.filter(i => i.is_dangling).length})</span>
+      </button>
+
+      <!-- Quick Sort Selector -->
+      <select
+        bind:value={sortField}
+        onchange={() => { sortDirection = (sortField === 'tag' || sortField === 'id') ? 'asc' : 'desc'; currentPage = 1; }}
+        class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+      >
+        <option value="tag">Sort: Tag / Repo</option>
+        <option value="id">Sort: Image ID</option>
+        <option value="size">Sort: Size</option>
+        <option value="created">Sort: Created Date</option>
+        <option value="status">Sort: Dangling Status</option>
+      </select>
+
+      <!-- Direction Toggle -->
+      <button
+        onclick={() => sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'}
+        title="Toggle sort direction"
+        class="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white transition-colors"
+      >
+        {#if sortDirection === 'asc'}
+          <ArrowUp class="w-4 h-4 text-indigo-400" />
+        {:else}
+          <ArrowDown class="w-4 h-4 text-indigo-400" />
+        {/if}
       </button>
 
       <!-- Search Input -->
@@ -97,12 +161,101 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs border-collapse">
           <thead>
-            <tr class="border-b border-slate-800/80 bg-slate-900/60 text-slate-400 uppercase tracking-wider font-semibold">
-              <th class="py-4 px-5">Repository & Tag</th>
-              <th class="py-4 px-4">Image ID</th>
-              <th class="py-4 px-4">Size</th>
-              <th class="py-4 px-4">Created Date</th>
-              <th class="py-4 px-5 text-right">Status</th>
+            <tr class="border-b border-slate-800/80 bg-slate-900/60 text-slate-400 uppercase tracking-wider font-semibold select-none">
+              <!-- Tag Header -->
+              <th
+                onclick={() => toggleSort('tag')}
+                class="py-4 px-5 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Repository & Tag</span>
+                  {#if sortField === 'tag'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- ID Header -->
+              <th
+                onclick={() => toggleSort('id')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Image ID</span>
+                  {#if sortField === 'id'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- Size Header -->
+              <th
+                onclick={() => toggleSort('size')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Size</span>
+                  {#if sortField === 'size'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- Created Header -->
+              <th
+                onclick={() => toggleSort('created')}
+                class="py-4 px-4 cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center gap-1.5">
+                  <span>Created Date</span>
+                  {#if sortField === 'created'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
+
+              <!-- Status Header -->
+              <th
+                onclick={() => toggleSort('status')}
+                class="py-4 px-5 text-right cursor-pointer hover:text-white transition-colors group"
+              >
+                <div class="flex items-center justify-end gap-1.5">
+                  <span>Status</span>
+                  {#if sortField === 'status'}
+                    {#if sortDirection === 'asc'}
+                      <ArrowUp class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {:else}
+                      <ArrowDown class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                    {/if}
+                  {:else}
+                    <ArrowUpDown class="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0 opacity-40" />
+                  {/if}
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/50 text-slate-300 font-medium">
@@ -172,7 +325,7 @@
             <option value={50}>50</option>
           </select>
           <span class="text-slate-500 font-mono ml-2">
-            Showing {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredImages.length)} of {filteredImages.length}
+            Showing {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, sortedImages.length)} of {sortedImages.length}
           </span>
         </div>
 

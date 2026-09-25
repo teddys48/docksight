@@ -6,6 +6,7 @@
   import Navbar from './lib/components/Navbar.svelte';
   import Dashboard from './lib/components/Dashboard.svelte';
   import ContainerList from './lib/components/ContainerList.svelte';
+  import LogsExplorer from './lib/components/LogsExplorer.svelte';
   import ImageList from './lib/components/ImageList.svelte';
   import VolumeList from './lib/components/VolumeList.svelte';
   import Toast from './lib/components/Toast.svelte';
@@ -91,6 +92,8 @@
         containers={systemStats?.containers || []}
         {loading}
       />
+    {:else if $activeTab === 'logs'}
+      <LogsExplorer />
     {:else if $activeTab === 'images'}
       <ImageList />
     {:else if $activeTab === 'volumes'}
